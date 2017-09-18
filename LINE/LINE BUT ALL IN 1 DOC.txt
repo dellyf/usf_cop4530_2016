@@ -1,0 +1,123 @@
+//Line.h
+
+#include<iostream>
+#include<string>
+using namespace std;
+class RuntimeException { // generic run-time exception
+private:
+   string errorMsg;
+public:
+   RuntimeException()
+   {
+
+   }
+   RuntimeException(const string& err) { errorMsg = err; }
+   string getMessage() const { return errorMsg; }
+};
+
+class EqualLines : public RuntimeException
+{
+
+public:
+   EqualLines() :RuntimeException("EqualLines")
+   {
+       RuntimeException e("EqualLines");
+       throw e;
+   }
+  
+};
+class ParallelLines : public RuntimeException
+{
+public:
+   ParallelLines() :RuntimeException("ParallelLines")
+   {
+       RuntimeException e("ParallelLines");
+       throw e;
+   }
+  
+};
+
+class Line {
+public:
+   Line(double slope, double y_intercept) : a(slope), b(y_intercept) {};
+   double intersect(const Line L) const throw(ParallelLines, EqualLines);
+   double getSlope() const { return a; };
+   double getIntercept() const { return b; };
+   // return the y-coordinate of the point with x-coordinate z:
+   //double get_y(double z) const;
+private:
+   double a;
+   double b;
+};
+
+-----------------------------------------------------------------------------------------
+
+//Line.cpp
+
+#include"Jan15_line.h"
+double Line::intersect(const Line L) const throw(ParallelLines, EqualLines)
+{
+   double x;
+   //to intersect y coordinate must be equal,if y1 =ax+b , y2= cx+d , y1=y2,
+   try
+   {
+       //if both slope and intercept are equalthen line is said to be same
+       if (L.getIntercept() == getIntercept() && L.getSlope() == getSlope())
+       {
+           //RuntimeException d("EqualLines");
+           EqualLines e;
+           //throw d;
+           //return -1;
+       }
+       //if slope of line is same then lines are said to be parallel
+       if (L.getSlope() == getSlope())
+       {
+           //throw exception that lines are parallen
+           //RuntimeException d("ParallelLines");
+           ParallelLines p;
+           //throw d;
+       }
+       x = (getIntercept() - L.getIntercept() ) / (L.getSlope() - getSlope());
+       return x;
+   }
+   catch (RuntimeException& e)
+   {
+       cout << e.getMessage() << endl;
+   }
+}
+
+---------------------------------------------------------------------
+
+//Main.cpp
+
+#include"Jan15_line.h"
+
+int main()
+{
+   double ret;
+   //test two lines equal
+   Line line1(10.5, 13.6), line2(10.5, 13.6);
+  
+   ret = line1.intersect(line2);
+   if (ret >= 0)
+   {
+       cout << "X coordinate of intersection of two lines = " << ret << endl;
+   }
+
+   //test two lines intersecting
+   Line line3(2, 3), line4(-0.5, 7);
+   ret = line3.intersect(line4);
+   if (ret >= 0)
+   {
+       cout << "X coordinate of intersection of two lines = " << ret << endl;
+   }
+  
+   //test two line are parallel
+   Line line5(2, 3), line6(2, 7);
+   ret = line5.intersect(line6);
+   if (ret >= 0)
+   {
+       cout << "X coordinate of intersection of two lines = " << ret << endl;
+   }
+
+}
